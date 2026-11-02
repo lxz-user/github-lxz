@@ -1,29 +1,30 @@
 name: Deploy MkDocs to GitHub Pages
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
+    branches: [ main ]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
-      - name: 设置Python环境
-        uses: actions/setup-python@v4
+
+      - name: 设置Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: 安装MkDocs及主题
+          python-version: "3.11"
+
+      - name: 安装依赖
         run: |
-          pip install mkdocs-material
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
       - name: 构建静态文档
-        run: |
-          mkdocs build
+        run: mkdocs build --site-dir site
+
       - name: 部署到GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          branch: gh-pages
-          folder: site
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
